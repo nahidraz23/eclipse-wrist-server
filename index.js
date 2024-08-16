@@ -33,13 +33,28 @@ async function run () {
       .collection('watchesCollection')
 
     app.get('/watches', async (req, res) => {
-      const result = await watchesCollection.find().toArray()
+      const page = parseInt(req.query.page)
+      const size = parseInt(req.query.size)
+      const result = await watchesCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray()
+      res.send(result)
+    })
+
+    app.get('/searchWatches', async (req, res) => {
+      const filter = req.query.search
+      const query = {
+        name: { $regex: filter, $options: 'i' }
+      }
+      const result = await watchesCollection.find(query).toArray()
       res.send(result)
     })
 
     app.get('/watchesCount', async (req, res) => {
-        const count = await watchesCollection.estimatedDocumentCount();
-        res.send({count})
+      const count = await watchesCollection.estimatedDocumentCount()
+      res.send({ count })
     })
 
     console.log(
