@@ -32,8 +32,16 @@ async function run () {
       .db('eclipsewristDB')
       .collection('watchesCollection')
 
+    const usersCollection = client.db('eclipsewristDB').collection('usersCollection');
+
     app.get('/watches', async (req, res) => {
-      const result = await watchesCollection.find().toArray();
+      const page = parseInt(req.query.page)
+      const size = parseInt(req.query.size)
+      const result = await watchesCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray()
       res.send(result);
     })
 
@@ -60,6 +68,22 @@ async function run () {
         name: { $regex: filter, $options: 'i' }
       }
       const result = await watchesCollection.find(query).toArray()
+      res.send(result);
+    })
+
+    app.get('/watchesCount', async (req, res) => {
+      const count = await watchesCollection.estimatedDocumentCount()
+      res.send({ count });
+    })
+
+    app.post('/user', async(req, res) => {
+      const user = req.body;
+      const query = { email: user?.email }
+      const existingUser = await usersCollection.findOne(query)
+      if (existingUser) {
+        return res.send({ message: 'Users already exist', insertedId: null })
+      }
+      const result = await usersCollection.insertOne(user);
       res.send(result);
     })
 
