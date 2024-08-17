@@ -43,18 +43,30 @@ async function run () {
       res.send(result)
     })
 
+    app.get('/sortWatches', async (req, res) => {
+      const filter = req.query;
+        const query = {};
+        const options = {
+            sort:{
+                price: filter.sort === 'asc' ? 1 : -1
+            }
+        }
+        const result = await watchesCollection.find(query, options).toArray();
+        res.send(result);
+    })
+
     app.get('/searchWatches', async (req, res) => {
       const filter = req.query.search
       const query = {
         name: { $regex: filter, $options: 'i' }
       }
       const result = await watchesCollection.find(query).toArray()
-      res.send(result)
+      res.send(result);
     })
 
     app.get('/watchesCount', async (req, res) => {
       const count = await watchesCollection.estimatedDocumentCount()
-      res.send({ count })
+      res.send({ count });
     })
 
     console.log(
