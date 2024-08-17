@@ -6,7 +6,12 @@ const port = process.env.PORT || 5300
 const { MongoClient, ServerApiVersion } = require('mongodb')
 
 // middlewares
-app.use(cors())
+app.use(cors(({
+  origin: [
+    "http://localhost:5173",
+    "https://eclipse-wrist-server.vercel.app"
+  ]
+})))
 app.use(express.json())
 
 // MongoDB stetup
